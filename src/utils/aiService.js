@@ -1,6 +1,5 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
-import { API_CONFIG } from './apiConfig';
 
 // 配置重試機制
 const axiosInstance = axios.create();
@@ -22,19 +21,19 @@ const API_ENDPOINTS = {
 };
 
 // 完整的 API URL
-const API_URL = `${API_CONFIG.baseURL}${API_ENDPOINTS.chat}`;
+const API_URL = `${process.env.REACT_APP_API_BASE_URL}${API_ENDPOINTS.chat}`;
 
 // 添加請求限制和緩存
 const CACHE_DURATION = 1000 * 60 * 120; // 2小時緩存
-const REQUEST_LIMIT = 2; // 每分鐘請求限制
-const REQUEST_INTERVAL = 30000; // 請求間隔 30 秒
+const REQUEST_LIMIT = 30; // 每分鐘請求限制
+const REQUEST_INTERVAL = 3000; // 請求間隔 3 秒
 let requestCount = 0;
 let lastRequestTime = Date.now();
 const responseCache = new Map();
 
 // 添加重試配置
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1秒
+const RETRY_DELAY = 500; // 0.5秒
 
 // 體溫範圍檢查
 const TEMPERATURE_RANGE = {
@@ -154,7 +153,7 @@ function generatePrompt(data) {
 // AI 問答功能
 export async function askAI(question) {
   try {
-    if (!API_CONFIG.key) {
+    if (!process.env.REACT_APP_API2D_KEY) {
       throw new Error('API 金鑰未設置，請檢查環境變量');
     }
     
@@ -170,9 +169,9 @@ export async function askAI(question) {
 
     const response = await axiosInstance({
       method: 'post',
-      url: API_URL,
+      url: `${process.env.REACT_APP_API_BASE_URL}/chat/completions`,
       data: {
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-3.5-turbo-0125',
         messages: [
           {
             role: 'system',
@@ -187,9 +186,10 @@ export async function askAI(question) {
         max_tokens: 1000,
       },
       headers: {
-        ...API_CONFIG.headers,
+        'Authorization': `Bearer ${process.env.REACT_APP_API2D_KEY}`,
+        'Content-Type': 'application/json'
       },
-      timeout: 60000
+      timeout: 30000
     });
 
     if (!response.data?.choices?.[0]?.message?.content) {
@@ -245,7 +245,7 @@ export async function analyzeSymptoms(data, retryCount = 0) {
       method: 'post',
       url: API_URL,
       data: {
-        model: 'opai_o3-mini',  // 使用相同的備用模型
+        model: 'gpt-3.5-turbo',  // 使用標準模型
         messages: [
           {
             role: 'system',
@@ -260,9 +260,8 @@ export async function analyzeSymptoms(data, retryCount = 0) {
         max_tokens: 1000
       },
       headers: {
-        ...API_CONFIG.headers,
-        'X-API-Priority': 'low',
-        'X-API-Version': '2024-01'
+        'Authorization': `Bearer ${process.env.REACT_APP_API2D_KEY}`,
+        'Content-Type': 'application/json'
       },
       timeout: 60000
     });
@@ -364,15 +363,19 @@ export async function analyzeSymptoms(data, retryCount = 0) {
 export async function testApiConnection() {
   try {
     console.log('Testing API connection with config:', {
-      baseURL: API_CONFIG.baseURL,
+      baseURL: process.env.REACT_APP_API_BASE_URL,
       url: API_URL,
       headers: {
-        ...API_CONFIG.headers,
-        'Authorization': '***'
+        ...{
+          'Authorization': `Bearer ${process.env.REACT_APP_API2D_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive'
       }
     });
     
-    if (!API_CONFIG.key) {
+    if (!process.env.REACT_APP_API2D_KEY) {
       throw new Error('API 金鑰未設置');
     }
 
@@ -380,7 +383,7 @@ export async function testApiConnection() {
       method: 'post',
       url: API_URL,
       data: {
-        model: 'opai_o3-mini',
+        model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'user',
@@ -390,7 +393,10 @@ export async function testApiConnection() {
         temperature: 0.5
       },
       headers: {
-        ...API_CONFIG.headers,
+        ...{
+          'Authorization': `Bearer ${process.env.REACT_APP_API2D_KEY}`,
+          'Content-Type': 'application/json'
+        },
         'X-API-Priority': 'low',
         'X-API-Version': '2024-01'
       },
