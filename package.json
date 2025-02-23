@@ -1,16 +1,13 @@
 {
   "name": "health_ai",
   "version": "1.0.0",
-  "homepage": "https://dc126114.github.io/health-ai.github.io",
+  "homepage": ".",
   "description": "兒童疾病健康助手",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "test": "jest"
   },
   "dependencies": {
     "autoprefixer": "^10.4.14",
