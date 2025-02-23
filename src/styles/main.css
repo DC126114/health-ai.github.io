@@ -1,0 +1,46 @@
+/* 全局样式变量 */
+:root {
+  /* 主题颜色 */
+  --primary-color: #1890ff;    /* 医疗蓝 */
+  --success-color: #52c41a;    /* 成功绿 */
+  --warning-color: #faad14;    /* 警告黄 */
+  --error-color: #f5222d;      /* 错误红 */
+  
+  /* 文字颜色 */
+  --text-primary: #333333;     /* 主要文字 */
+  --text-secondary: #666666;   /* 次要文字 */
+  --text-disabled: #999999;    /* 禁用文字 */
+}
+
+/* 基础样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 响应式字体设置 */
+html {
+  font-size: 16px;
+  font-family: "思源黑体", "Roboto", sans-serif;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* 无障碍焦点样式 */
+:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* 页面容器 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+} 
